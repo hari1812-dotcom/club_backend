@@ -1,4 +1,5 @@
-require("dotenv").config({ path: "../.env.example" });
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -14,15 +15,29 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
+// ✅ Debug (optional)
+console.log("FRONTEND_URL:", process.env.FRONTEND_URL);
+
+// ✅ Health check route
 app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
+// ✅ Middleware
 app.use(morgan("dev"));
-app.use(cors({ origin: process.env.FRONTEND_URL || "http://localhost:5173", credentials: true }));
+
+// 🔥 Proper CORS setup (IMPORTANT)
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(cookieParser());
 
+// ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/clubs", clubRoutes);
 app.use("/api/club-requests", clubRequestRoutes);
@@ -30,6 +45,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 
+// ✅ Error handler
 app.use(errorHandler);
 
 module.exports = app;
